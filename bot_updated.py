@@ -1,13 +1,15 @@
 import telebot
 import random
+import html
 
 TOKEN = "8788796720:AAGmTJ2eI-m9jtKvnQbS-IFezZuIt_20YNI"
 
 bot = telebot.TeleBot(TOKEN, parse_mode="HTML")
 
 
-def format_name(user):
-    return user.first_name or "Игрок"
+def user_tag(user):
+    name = html.escape(user.first_name or "Игрок")
+    return f'<a href="tg://user?id={user.id}">{name}</a>'
 
 
 @bot.message_handler(commands=["start"])
@@ -39,7 +41,7 @@ def me(message):
 
     bot.send_message(
         message.chat.id,
-        f"<b>{format_name(message.from_user)}</b> - {text}"
+        f"<b>{user_tag(message.from_user)}</b> - {html.escape(text)}"
     )
 
 
@@ -52,7 +54,7 @@ def do(message):
 
     bot.send_message(
         message.chat.id,
-        f"<b>{format_name(message.from_user)}</b> - {text}"
+        f"<b>{user_tag(message.from_user)}</b> - {html.escape(text)}"
     )
 
 
@@ -65,9 +67,13 @@ def todo(message):
 
     if "*" in text:
         speech, action = text.split("*", 1)
-        result = f"<b>{format_name(message.from_user)}</b> - {speech.strip()} *{action.strip()}*"
+        result = (
+            f"<b>{user_tag(message.from_user)}</b> - "
+            f"{html.escape(speech.strip())} "
+            f"<i>{html.escape(action.strip())}</i>"
+        )
     else:
-        result = f"<b>{format_name(message.from_user)}</b> - {text}"
+        result = f"<b>{user_tag(message.from_user)}</b> - {html.escape(text)}"
 
     bot.send_message(message.chat.id, result)
 
@@ -83,7 +89,8 @@ def try_cmd(message):
 
     bot.send_message(
         message.chat.id,
-        f"<b>{format_name(message.from_user)}</b> - {text}\n<b>Результат:</b> {result}"
+        f"<b>{user_tag(message.from_user)}</b> - {html.escape(text)}\n"
+        f"<b>Результат:</b> {result}"
     )
 
 
